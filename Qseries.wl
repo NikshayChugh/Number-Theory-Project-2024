@@ -32,6 +32,8 @@ findcong::usage =
     Returns a set of lists {r, M, P^R} where P^R is a prime power satisfying certain conditions.";
 findcong::argerr = 
 	"findcong takes 2, 3, or 4 arguments.";
+jacprod::usage = 
+  "jacprod[a, b, q, T] returns the q-series expansion to O(q^T) of the Jacobi-type infinite product aqprod[q^a, q^b, Infinity]*aqprod[q^(b-a),q^b, Infinity] ";
 
 Begin["`Private`"];
 
@@ -164,6 +166,16 @@ theta3[q_, t_] := Sum[q^(i^2),{i,-t,t}]
 (*theta4*)
 theta4[q_,t_] := theta[-1,q,t]
 
+(*jacprod*)
+(*
+proc(a, b, q, T)
+    local x, i, lasti;
+    tripleprod(q^a, q^b, T)/tripleprod(q^b, q^(3*b), T);
+end proc
+*)
+jacprod[a_,b_,q_,t_] := Series[aqprod[q^a,q^b, t+1]*aqprod[q^(b-a),q^b,t+1], {q, 0, t}]
+
+(*findcong*)
 
 End[];
 EndPackage[];
