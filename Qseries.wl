@@ -14,13 +14,15 @@ qbin::usage =
   q: the base of the q-binomial,
   m: an integer (the lower bound of the binomial coefficient),
   n: an integer (the upper bound of the binomial coefficient).
-  
-The function returns the value of the q-binomial coefficient as the product of q terms, calculated using the formula:
-  (1 - q)(1 - q^2)...(1 - q^n) / [(1 - q)(1 - q^2)...(1 - q^m)][(1 - q)(1 - q^2)...(1 - q^(n - m))].
-
-If q is a symbol, the function returns the symbolic result, otherwise, it substitutes _x for q and calculates the result. 
 If the inputs are not integers or are not in the valid range, it returns 0.";
-
+theta::usage = 
+  "theta[z, q, T] computes the theta function, defined as the sum of z^i * q^(i^2) from i = -T to T.";
+theta2::usage = 
+  "theta2[q, T] computes the theta function, defined as the sum of q^((i+1)^2/2) from i = -T to T.";
+theta3::usage =
+  "theta3[q, T] computes the theta function, defined as the sum of q^(i^2) from i = -T to T.";
+theta4::usage =
+  "theta4[q, T] computes the theta function, defined as the sum of (-1)^i * q^(i^2) from i = -T to T.";
 findcong::usage = 
     "findcong[QS_, T_, LM_:Null, XSET_:{}] computes a set of congruence relations based on inputs:
     QS: a polynomial with variable q,
@@ -30,7 +32,6 @@ findcong::usage =
     Returns a set of lists {r, M, P^R} where P^R is a prime power satisfying certain conditions.";
 findcong::argerr = 
 	"findcong takes 2, 3, or 4 arguments.";
-
 
 Begin["`Private`"];
 
@@ -138,14 +139,30 @@ etaq[q_, a_, T_] := Module[
 qbin[q_, m_, n_] := 
   If[IntegerQ[m] && IntegerQ[n], (* Check if m and n are integers *)
     If[0 <= m <= n, (* Check if m is between 0 and n *)
-        Return[Normal[aqprod[q, q, n]/(aqprod[q, q, m]*aqprod[q, q, n - m])]//FullSimplify],
+      (* Compute the expression for x first *)
+      output = Normal[aqprod[x, x, n]/(aqprod[x, x, m] * aqprod[x, x, n - m])] //FullSimplify //Expand;
+      (* Substitute q into the result *)
+      output = output /. x -> q // Expand;
+      Return[output], (* Return the final result with q substituted *)
       Return[0] (* Return 0 if m is not in range *)
     ],
     (* If m or n are not integers, throw an error *)
     Message[qbin::argerr, m, n]
   ]
+
 qbin::argerr = "m and n must be integers.";
 
+(*theta*)
+theta[z_, q_, t_] := Sum[z^i * q^(i^2), {i, -t, t}]
+
+(*theta2*)
+theta2[q_, t_] := Sum[q^((i+1)^2/2),{i,-t,t}]
+
+(*theta3*)
+theta3[q_, t_] := Sum[q^(i^2),{i,-t,t}]
+
+(*theta4*)
+theta4[q_,t_] := theta[-1,q,t]
 
 
 End[];
