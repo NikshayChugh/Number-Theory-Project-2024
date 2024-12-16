@@ -1,0 +1,2115 @@
+#######################################################
+## make-win-package qseries qsLIST.sorted qsSLIST wmprog.19 13
+## Mon Jul 16 15:56:54 EDT 2012
+#######################################################
+#######################################################
+
+qseries:=table();
+qseries[aqprod]:=proc(a,q,n)
+   #11/25/99: added else bit when n not an integer
+   #          (existed in an earlier version but got lost somehow)
+   local x,i:
+   if type(n,nonnegint) then
+      x:=1:
+      for i from 1 to n do
+         x := x * (1-a*q^(i-1)):
+      od:
+   else
+      x:=``(a,q)[n];
+   fi:
+   RETURN(x):
+end:
+qseries[changes]:=proc()
+lprint(`**************************************************************`);
+lprint(`*`);
+lprint(`*`);
+lprint(`*  qseries package version 1.1 - Mon Jul 16 15:24:26 EDT 2012`);
+lprint(`*  This version tested on Maple 10, 11, 12, and 13`); 
+lprint(`*`);
+lprint(`*`);
+lprint(`*  Changes since version 1.0`);
+lprint(`*`);
+lprint(`*      *  Added new function qdegree`);
+lprint(`*         qdegree(QS) returns degree in q.`);
+lprint(`*`);
+lprint(`*      *  Added new function findcong`);
+lprint(`          This function finds congruences c(A*n+B) == 0 mod C`);
+lprint(`          for a give qseries f=add(c(n)*q^n).`);
+lprint(`*`);
+lprint(`*      *  Added new function qs2jaccombo`);
+lprint(`          This function converts a sum of q-series to a sum`);
+lprint(`          of jacprods if possible. `);
+lprint(`*`);
+lprint(`*      *  Local vars added to procs where necessary`);
+lprint(`*`);
+lprint(`*      *  jacprodmake now takes 3 or 4 args`);
+lprint(`*         jacprodmake(f,q,T) works as before.`);
+lprint(`*         jacprodmake(f,q,T,P) returns a jacprod (if it exists) on`);
+lprint(`          base q^b where b is a divisor of P. ERROR is returned `);
+lprint(`          if f is not a jacprod.`); 
+lprint(`          This new version also handles the case where the coeff `);
+lprint(`          of q^0 is not 1.`);
+lprint(`          PLEASE report any bugs.`);
+lprint(`*`);
+lprint(`*      *  New hidden function periodfind2 added. `);
+lprint(`          This is used by jacprodmake to find period assuming it`);
+lprint(`          is a divisor of a given integer.`);
+lprint(`*`);
+lprint(`*      *  New hidden function jacmake now takes 2 or 3 args.`);
+lprint(`*         It is used by jacprodmake.`);
+lprint(`*`);
+lprint(`*      *  Added instructions for windows installation`);
+lprint(`*         Tested with Maple 11`);                               
+lprint(`*`);
+lprint(`*      *  Corrected email and homepage listed below`);
+lprint(`*         New email: fgarvan@ufl.edu`);                             
+lprint(`*         New homepage:  http://www.math.ufl.edu/~fgarvan`); 
+lprint(`*`);
+lprint(`*  Changes since version 0.9`);
+lprint(`*`);
+lprint(`*      *  Updated packageversion with new email address and homepage.`);
+lprint(`*`);
+lprint(`*      *  qbin accepts q=root of unity etc (Suggested by Michael Somos)`);
+lprint(`*`);
+lprint(`*      *  Added function findlincombomodp`);           
+lprint(`*`);
+lprint(`*      *  Fixed bug in findlincombo`);           
+lprint(`*`);
+lprint(`*      *  Local username changed from frank to fgarvan`);
+lprint(`*         New email: fgarvan@ufl.edu`);                             
+lprint(`*         New homepage:  http://www.math.ufl.edu/~fgarvan`); 
+lprint(`*`);
+lprint(`*      *  Corrected typo in online help for findlincombo`);
+lprint(`*`);
+lprint(`*  Changes since version 0.8`);
+lprint(`*`);
+lprint(`*      *  Added online FUNCTIONS page:`);
+lprint(`*         http://www.math.ufl.edu/~fgarvan/qmaple/functions/`);
+lprint(`*`);
+lprint(`*      *  Added gooo to global list in findhomcombo`);   
+lprint(`*      *  Added new function findlincombo`);          
+lprint(`*`);
+lprint(`*      *  Fixed bugs in findhomcombo and modp version`);
+lprint(`*         There was unnecessary etamake comp when etaopt=no`);
+lprint(`*`);
+lprint(`*      *  updated prodmake so it can have symbolic exponents`);
+lprint(`*         Used series instead of taylor`);
+lprint(`*`);
+lprint(`*      *  new function findhomcombomodp`);
+lprint(`*         This is a modp version of  findhomcombo`);
+lprint(`*         Useage: findhomcombomodp(f,L,p,q,n,topshift,etaoption))`);
+lprint(`*`);
+lprint(`*      *  Fixed a bug in findhomcombo when nops(L)=1`);
+lprint(`*`);
+lprint(`*      *  Fixed bug in findpoly `);   
+lprint(`*`);
+lprint(`*      *  In qetamake change E(q) to _E(q) `);
+lprint(`*`);
+lprint(`*      *  Fixed minor bug in sift `);
+lprint(`*`);
+lprint(`*  Changes since version 0.7`);
+lprint(`*`);
+lprint(`*      *  changed name of function version to packageversion`);
+lprint(`*         since version is maple builtin function`);
+lprint(`*         Useage: packageversion()`);
+lprint(`*`);
+lprint(`*      *  new function findhommodp`);
+lprint(`*         This is a modp version of  findhom`);
+lprint(`*         Useage: findhommodp(L,p,q,n,topshift)`);
+lprint(`*`);
+lprint(`*      *  new function mprodmake`);
+lprint(`*         Finds product expansion (1+q^n1)*(1+q^n2)*...`);
+lprint(`*         Useage: mprodmake(f,q,last)`);
+lprint(`*`);
+lprint(`*      *  fixed bug in qetamake         `);
+lprint(`*`);
+lprint(`*  Changes since version 0.6 (Nov 2002):`);
+lprint(`*`);
+lprint(`*      *  new function qetamake          `);
+lprint(`*         This is just a variant of etamake which returns E(q^m)`);
+lprint(`*         instead of eta(m*tau).`);
+lprint(`*`);
+lprint(`*      *  fixed bug in jac2series        `);
+lprint(`*`);
+lprint(`*  Changes since version 0.5:`);
+lprint(`*`);
+lprint(`*      *  new function zqfactor          `);
+lprint(`*         Takes 4 or 5 args: `);                        
+lprint(`*         zqfactor(F,z,q,N,buglim) `);
+lprint(`*         zqfactor(F,z,q,N) `);
+lprint(`*            factors F into a product of terms `);
+lprint(`*            of the form (1 - a[i,j] z^i q^j).`);
+lprint(`*            Factor F into a product of terms (1 - a[i,j] z^i q^j)`);
+lprint(`*            N = largest j `);
+lprint(`*            buglim = max number of terms (default is 1000).`);
+lprint(`*`);
+lprint(`*  Changes since version 0.4:`);
+lprint(`*`);
+lprint(`*      *  prodmake now takes 3 or 4 args.`);
+lprint(`*         prodmake(f,q,t) returns a q-product.`);
+lprint(`*         prodmake(f,q,t,list) returns a q-product as a list of exponents.`);
+lprint(`*      *  new function changes() - returns changes since previous release.`);           
+lprint(`*`);
+lprint(`*  Please report any problems to fgarvan@ufl.edu`);
+lprint(`*  See `);
+lprint(`*  http://www.math.ufl.edu/~fgarvan/qmaple/qmaple.html `);
+lprint(`*  for documentation and help.`);
+lprint(`*`);
+lprint(`**************************************************************`);
+RETURN():
+end:
+qseries[etamake]:=proc(f,q,last) 
+#
+#VERSION: 01/30/10
+# Use series(`leadterm`(expr),q) to get leadterm instead of tc etc.
+# This is handle BBG c(q) function
+#This procedure computes an eta-product expansion
+#of the series f to order O(q^last).              
+	   local fp,tc,exq,g,aa,ld,h,hh,i,cf,etaprod,alast,sf:
+           sf:=series(f,q,last+10):
+	   fp:=convert(sf,polynom):
+	   tc:=tcoeff(fp,q):
+	   exq:=ldegree(fp,q):
+	   g:=normal(fp/tc/q^exq):
+	   aa:=tc:
+	   ld:=1:
+	   alast:=last-exq:
+	   while ld>0 do
+	      h:=series(g-1,q=0,alast+1):
+	      hh:=0:
+	      for i from 1 to alast do 
+	         hh:=hh+coeff(h,q,i)*q^i:
+	      od:
+	      h:=hh:
+	      ##
+	      ##08/20/99: bug fix ldegree(0,q) returns infinity
+	      ##          in maple V release 5
+	      if h=0 then
+	        ld:=0:
+	      else
+	        ld:=ldegree(h,q):
+	      fi:
+	      cf:=coeff(h,q,ld):
+	      if ld>0 then
+	         exq:=exq+(ld*cf)/24:
+	         aa:=eta(ld*tau)^(-cf)*aa:
+	         g:=g*etaq(q,ld,alast)^cf:
+	      fi:
+	   od:
+	   etaprod:=q^(exq)*aa:
+	   RETURN(etaprod):
+	end:
+     qseries[etaq]:=proc(q,i,trunk)
+#       This proc returns (q^i:q^i)_inf up to q^trunk
+        local k,x,z1,z,w:
+        z1:=(i + sqrt( i*i + 24*trunk*i ) )/(6*i):
+        z:=1+trunc( evalf(z1) ):
+        x:=0:
+        for k from -z to z do
+          w:=i*k*(3*k-1)/2:
+          if w<=trunk then
+           x:=x+ q^( w )*(-1)^k:
+          fi:
+        od:
+        RETURN(x):
+     end:
+
+ 
+ qseries[findcong]:=proc()
+ local s,j,c,S,p,r,QS2,S1,QS,T,LM,LM1,M,xxT,xxT1,CFS1,IGCD1,CFS,IGCD,f,IFX,HH,h,P,R,m,L,ra,Ma,pa,XSET;
+ global xprint:
+        ## findcong(QS,T)
+        ## findcong(QS,T,LM)
+        ## findcong(QS,T,LM,XSET)
+        ## find linear congruences for q-series QS up to q^T
+        ## EXAMPLE:
+        ## P:=series(1/etaq(q,1,1001),q,1001):
+        ## > findcong(P,1000);
+        ##                        [4, 5, 5]
+        ##                        [5, 7, 7]
+        ##                       [6, 11, 11]
+        ##                       [24, 25, 25]
+        ##    {[5, 7, 7], [4, 5, 5], [24, 25, 25], [6, 11, 11]}
+        ## NOTE: XSET set of moduli to exclude
+        if nargs>4 or nargs<2 then
+           ERROR(`findcong takes 2, 3 or 4 args.`);
+        fi:
+        if not(type(xprint,boolean)) then
+          xprint:=false:
+        fi:
+        QS:=args[1]:
+        T:=args[2]:
+        LM1:=2:
+        XSET:={}:
+        if nargs=2 then
+           LM:=trunc(sqrt(T)):
+        else
+           LM:=args[3]: 
+        fi:
+        if nargs=4 then
+           XSET:=args[4]:
+        fi:
+        S:={}:
+      for M from LM1 to LM  do
+      for r from 0 to M-1 do
+         xxT:=trunc((T-r)/M):
+         xxT1:=min(xxT,100):
+         CFS1:=[seq(coeff(QS,q,M*n+r),n=0..xxT1)]:
+         if xprint then
+            lprint("xxT1=",xxT1,"CFS1=",CFS1);
+         fi:
+         IGCD1:=igcd(op(CFS1));
+         if xprint then
+            lprint("M=",M,"r=",r,"IGCD1=",IGCD1);
+         fi:
+         if IGCD1<>1 and not member(IGCD1,XSET) then
+         CFS:=[seq(coeff(QS,q,M*n+r),n=0..trunc((T-r)/M))]:
+         IGCD:=igcd(op(CFS));
+         if IGCD<>1 then
+           # new one?
+           f:=1:
+           IFX:=ifactors(IGCD):
+           HH:=IFX[2]:
+           for h from 1 to nops(HH) do
+              P:=HH[h][1]:
+              R:=HH[h][2]:
+           for m from 1 to nops(S) do
+              L:=S[m]:
+              ra:=L[1]: Ma:=L[2]: pa:=L[3]:
+              if modp(r,Ma)=ra and pa=P^R and modp(M,Ma)=0 then
+                 f:=0:
+              fi:
+           od:
+           if f=1 then
+              S1:= S union {[r,M,P^R]}: 
+              if nops(S1) > nops(S) then 
+                print([r,M,P^R]); 
+                S:=S1:
+              fi:
+           fi:
+           od:
+          fi:
+          fi:
+       od:od:
+ RETURN(S);
+ end:           
+#++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+qseries[findhom]:=proc(L,q,n,topshift)
+#This program generates a list of potential homogeneous relations
+#of degree n among the list of q-series L.
+#
+   local xx,x,y,z,nx,n2,n3,gg,goo,gooo,c,dh,jj,g,k,w,d,i,ct,D,ii,h,G,ANS;
+   global X:
+if whattype(n)=integer and whattype(topshift)=integer then
+if n>0 and topshift>-20 then
+
+   D:=nops(L);
+   gg[1]:={};
+   xx:=expand(sum(x[i],i=1..D)^(n) ):
+   nx:=nops(xx):
+   n2:=nx+20+topshift:#step this up if some solutions are spurious
+   n3:=n2+1:
+   print(`# of terms `,n3);
+   c:=array(1..nx,1..n2);
+   dh:=array(1..nx,1..D);
+   for jj from 1 to nx do
+      G:=op(jj,xx):
+      for i from 1 to D do
+      h[i]:=degree(G,x[i]):
+      dh[jj,i]:=h[i]:
+      od:
+      w:=product(L[ii]^h[ii],ii=1..D):
+      d:=taylor(w,q=0,n3);
+      for i from 1 to n2 do
+         c[jj,i]:=coeff(d,q,i);
+      od;
+   od:
+   ct:=  linalg[transpose](c):
+   gooo:=(linalg[kernel](ct));
+   for k from 1 to nops(gooo) do
+      goo:=gooo[k];
+      d:=op(dh):
+      g[k]:=0:
+      for i from 1 to nx do
+         g[k]:=g[k]+goo[i]*product(X[ii]^d[i,ii],ii=1..D):
+      od;
+      gg[k]:=g[k];
+  od;
+ print(`-----RELATIONS----of order---`,n);  
+   ANS:=convert(gg,set);
+   RETURN(ANS);
+else
+   ERROR(`n must be a positive integer and topshift must apositive integer greater then -20`);
+fi:
+else
+   ERROR(`n and topshift must be integers.`);
+fi:
+end:
+
+ 
+qseries[findhomcombo]:=proc(f,L,q,n,topshift,etaoption)
+#This program tries to express f as a homogeneous polynomial     
+#of degree n among the list of q-series in L.
+#
+#01/26/06: Fixed bug when nops(L)=1
+#
+   local xx,x,y,z,nx,n2,n3,gg,goo,c,dh,jj,g,k,w,d,i,D,ii,h,G,ANS,func,fq,ANSETA,geta;
+   global X,ct,gooo:
+   #06/20/07: added gooo to global
+   X:='X':
+if whattype(n)=integer and whattype(topshift)=integer then
+if n>0 and topshift>-20 then
+
+   D:=nops(L);
+   gg[1]:={};
+   xx:=expand(sum(x[i],i=1..D)^(n) ):
+   nx:=nops(xx):
+   if D=1 then
+      nx:=1:
+   fi:
+   n2:=nx+20+topshift:#step this up if some solutions are spurious
+   n3:=n2+1:
+   print(`# of terms `,n3);
+   c:=array(1..nx+1,1..n2);
+   dh:=array(1..nx,1..D);
+   if D>1 then
+      for jj from 1 to nx do
+         G:=op(jj,xx):
+         for i from 1 to D do
+         h[i]:=degree(G,x[i]):
+         dh[jj,i]:=h[i]:
+         od:
+         w:=product(L[ii]^h[ii],ii=1..D):
+         d:=series(w,q,n3);
+         func[jj]:=d:
+         for i from 1 to n2 do
+            c[jj,i]:=coeff(d,q,i);
+         od;
+      od:
+   else
+      d:=series(L[1]^n,q,n3):
+      dh[1,1]:=n:
+      func[1]:=d:
+         for i from 1 to n2 do
+            c[1,i]:=coeff(d,q,i);
+         od;
+   fi:
+   fq:=series(f,q,n3):
+   for i from 1 to n2 do c[nx+1,i]:=coeff(fq,q,i):od:
+   ct:=  linalg[transpose](c):
+   gooo:=(linalg[kernel](ct)):
+   ##warning added 09/13/05
+   if nops(gooo)>1 then
+      print(`WARNING: dim ker =`,nops(gooo));
+   fi:
+   ANS:={}: 
+   ANSETA:={}: 
+   for k from 1 to nops(gooo) do
+       goo:=gooo[k]:
+       d:=op(dh):
+       g[k]:=0:
+       geta[k]:=0:
+       if goo[nx+1]<>0 then
+           for i from 1 to nx do
+              g[k]:=g[k]+goo[i]*product(X[ii]^d[i,ii],ii=1..D):
+              if etaoption = `yes` then
+                geta[k]:=geta[k]+goo[i]*qseries[etamake](func[i],q,n3-2): 
+              fi:
+           od:
+           ANS:=ANS union {-g[k]/goo[nx+1]}:
+           if etaoption = `yes` then
+             ANSETA:=ANSETA union {-geta[k]/goo[nx+1]}:
+           fi:
+        fi:
+   od:
+ print(`-----possible linear combinations of degree------`,n):  
+if etaoption = `yes` then
+  print(ANSETA);
+fi:
+RETURN(ANS);
+else
+   ERROR(`n must be a positive integer and topshift must apositive integer greater then -20`);
+fi:
+else
+   ERROR(`n and topshift must be integers.`);
+fi:
+end:
+#++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 
+qseries[findhomcombomodp]:=proc(f,L,p,q,n,topshift,etaoption)
+#This program tries to express f (mod p) as a homogeneous polynomial     
+#of degree n among the list of q-series in L.
+#
+#
+   local xx,x,y,z,nx,n2,n3,gg,goo,gooo,c,ct,dh,jj,g,k,w,d,i,D,ii,h,G,ANS,func,fq,ANSETA,geta;
+   global X:
+   X:='X':
+if whattype(n)=integer and whattype(topshift)=integer then
+if n>0 and topshift>-20 then
+
+   D:=nops(L);
+   gg[1]:={};
+   xx:=expand(sum(x[i],i=1..D)^(n) ):
+   nx:=nops(xx):
+   if D=1 then
+      nx:=1:
+   fi:
+   n2:=nx+20+topshift:#step this up if some solutions are spurious
+   n3:=n2+1:
+   print(`# of terms `,n3);
+   c:=array(1..nx+1,1..n2);
+   dh:=array(1..nx,1..D);
+   if D>1 then
+      for jj from 1 to nx do
+         G:=op(jj,xx):
+         for i from 1 to D do
+         h[i]:=degree(G,x[i]):
+         dh[jj,i]:=h[i]:
+         od:
+         w:=product(L[ii]^h[ii],ii=1..D):
+         d:=series(w,q,n3);
+         func[jj]:=d:
+         for i from 1 to n2 do
+            c[jj,i]:=coeff(d,q,i);
+         od;
+      od:
+   else
+      d:=series(L[1]^n,q,n3):
+      dh[1,1]:=n:
+      func[1]:=d:
+         for i from 1 to n2 do
+            c[1,i]:=coeff(d,q,i);
+         od;
+   fi:
+   fq:=series(f,q,n3):
+   for i from 1 to n2 do c[nx+1,i]:=coeff(fq,q,i):od:
+   ct:=  linalg[transpose](c):
+   gooo:=Nullspace(ct) mod p:  
+   print("Nullspace computed");
+   if nops(gooo)>1 then
+      print(`WARNING: dim ker =`,nops(gooo));
+   fi:
+   ANS:={}: 
+   ANSETA:={}: 
+   for k from 1 to nops(gooo) do
+       goo:=gooo[k]:
+       d:=op(dh):
+       g[k]:=0:
+       geta[k]:=0:
+       if goo[nx+1]<>0 then
+           for i from 1 to nx do
+              g[k]:=g[k]+goo[i]*product(X[ii]^d[i,ii],ii=1..D):
+              #added if to stop unnecessary slowdown using etamake
+              if etaoption = `yes` then
+                geta[k]:=geta[k]+goo[i]*qseries[etamake](func[i],q,n3-2): 
+              fi:
+           od:
+           ANS:=ANS union {-g[k]/goo[nx+1]}:
+           if etaoption = `yes` then
+             ANSETA:=ANSETA union {-geta[k]/goo[nx+1]}:
+           fi:
+        fi:
+   od:
+   ANS:=modp(ANS,p):
+ print(`-----possible linear combinations of degree------`,n,`---- mod `,p):  
+if etaoption = `yes` then
+  print(ANSETA);
+fi:
+RETURN(ANS);
+else
+   ERROR(`n must be a positive integer and topshift must apositive integer greater then -20`);
+fi:
+else
+   ERROR(`n and topshift must be integers.`);
+fi:
+end:
+#++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+qseries[findhommodp]:=proc(L,p,q,n,topshift)
+##05/18/05
+##This is a modp version of findhom.
+#This program generates a list of potential homogeneous relations mod p
+#of degree n among the list of q-series L.
+#
+   local xx,x,y,z,nx,n2,n3,gg,goo,gooo,c,dh,jj,g,k,w,d,i,D,ii,h,G,ANS;
+   global X,ct:
+if whattype(n)=integer and whattype(topshift)=integer then
+if n>0 and topshift>-20 then
+
+   D:=nops(L);
+   gg[1]:={};
+   xx:=expand(sum(x[i],i=1..D)^(n) ):
+   nx:=nops(xx):
+   n2:=nx+20+topshift:#step this up if some solutions are spurious
+   n3:=n2+1:
+   print(`# of terms `,n3);
+   c:=array(1..nx,1..n2);
+   dh:=array(1..nx,1..D);
+   for jj from 1 to nx do
+      G:=op(jj,xx):
+      for i from 1 to D do
+      h[i]:=degree(G,x[i]):
+      dh[jj,i]:=h[i]:
+      od:
+      w:=product(L[ii]^h[ii],ii=1..D):
+      d:=taylor(w,q=0,n3);
+      for i from 1 to n2 do
+         c[jj,i]:=coeff(d,q,i);
+      od;
+   od:
+   ct:=  linalg[transpose](c):
+   ##gooo:=(linalg[kernel](ct));
+   gooo:=Nullspace(ct) mod p;  
+   for k from 1 to nops(gooo) do
+      goo:=gooo[k];
+      d:=op(dh):
+      g[k]:=0:
+      for i from 1 to nx do
+         g[k]:=g[k]+goo[i]*product(X[ii]^d[i,ii],ii=1..D):
+      od;
+      gg[k]:=g[k];
+  od;
+ print(`-----RELATIONS----of order---`,n,`---- mod `,p);  
+   ANS:=convert(gg,set);
+   RETURN(ANS);
+else
+   ERROR(`n must be a positive integer and topshift must apositive integer greater then -20`);
+fi:
+else
+   ERROR(`n and topshift must be integers.`);
+fi:
+end:
+
+qseries[findlincombo]:=proc(f,L,SL,q,topshift)
+#04/27/08
+#This program tries to express f as a linear combo of funcs in L 
+#SL is list of names of funcs in L.          
+#
+   local fq, nx, n2, n3, c, jj, d, i, goo, ANS;
+   global ct,gooo:
+   #06/20/07: added gooo to global
+if whattype(topshift)=integer then
+if topshift>-20 then
+   nx:=nops(L):
+   print(`nx = `,nx);
+   n2:=nx+20+topshift:#step this up if some solutions are spurious
+   n3:=n2+1:
+   print(`# of terms `,n3);
+   c:=array(1..nx+1,1..n2);
+      for jj from 1 to nx do
+         d:=series(L[jj],q,n3);
+   ## 02/14/09: changed loop  [i from 1 to n2] TO [for i from 0 to n2-1] 
+         for i from 0 to n2-1 do
+            c[jj,i+1]:=coeff(d,q,i);
+         od;
+      od:
+   fq:=series(f,q,n3):
+   ## 02/14/09: changed loop  [i from 1 to n2] TO [for i from 0 to n2-1] 
+   for i from 0 to n2-1 do c[nx+1,i+1]:=coeff(fq,q,i):od:
+   ct:=  linalg[transpose](c):
+   gooo:=(linalg[kernel](ct)):
+   ##warning added 09/13/05
+   if nops(gooo)>1 or nops(gooo)=0 then
+      print(`WARNING: dim ker =`,nops(gooo));
+      if nops(gooo)=0 then
+           print("NOT A LINEAR COMBO.");
+      fi:
+      RETURN():
+   fi:
+       goo:=gooo[1]:
+       if goo[nx+1]<>0 then
+           ANS:=add(-goo[k]/goo[nx+1]*SL[k],k=1..nx);
+           RETURN(ANS);
+       else
+           print("NOT A LINEAR COMBO.");
+           RETURN():
+       fi:
+else
+   ERROR(`topshift must apositive integer greater then -20`);
+fi:
+else
+   ERROR(`topshift must be integers.`);
+fi:
+end:
+#####################################################################
+##EXAMPLE:
+##>    f1:=1+q+q^3;
+##>    f2:=1+q-q^3-q^5-q^7;
+##>    f3:=12*f1+13*f2;
+##> qseries[findlinhomcombo](f3,[f1,f2],[F1,F2],q,0);
+##                                    nx = , 2
+##
+##                                # of terms , 23
+##
+##                                 12 F1 + 13 F2
+##
+##> qseries[findlinhomcombo](f3,[f1,f2+q],[F1,F2],q,0);
+##                                    nx = , 2
+##
+##                                # of terms , 23
+##
+##                             WARNING: dim ker =, 0
+##
+##                             "NOT A LINEAR COMBO."
+##
+##
+#####################################################################
+qseries[findlincombomodp]:=proc(f,L,SL,p,q,topshift)
+#02/15/09 (This is a mod p version of findlincombo)
+#This program tries to express f as a linear combo modp of funcs in L 
+#SL is list of names of funcs in L.          
+#
+   local fq, nx, n2, n3, c, jj, d, i, goo, ANS;
+   global ct,gooo:
+   #06/20/07: added gooo to global
+if whattype(topshift)=integer then
+if topshift>-20 then
+   nx:=nops(L):
+   print(`nx = `,nx);
+   n2:=nx+20+topshift:#step this up if some solutions are spurious
+   n3:=n2+1:
+   print(`# of terms `,n3);
+   c:=array(1..nx+1,1..n2);
+      for jj from 1 to nx do
+         d:=series(L[jj],q,n3);
+   ## 02/14/09: changed loop  [i from 1 to n2] TO [for i from 0 to n2-1] 
+         for i from 0 to n2-1 do
+            c[jj,i+1]:=coeff(d,q,i);
+         od;
+      od:
+   fq:=series(f,q,n3):
+   ## 02/14/09: changed loop  [i from 1 to n2] TO [for i from 0 to n2-1] 
+   for i from 0 to n2-1 do c[nx+1,i+1]:=coeff(fq,q,i):od:
+   ct:=  linalg[transpose](c):
+   gooo:=Nullspace(ct) mod p: 
+   ##warning added 09/13/05
+   if nops(gooo)>1 or nops(gooo)=0 then
+      print(`WARNING: dim ker =`,nops(gooo));
+      if nops(gooo)=0 then
+           print("NOT A LINEAR COMBO MOD ",p,".");
+      fi:
+      RETURN():
+   fi:
+       goo:=gooo[1]:
+       if goo[nx+1]<>0 then
+           ANS:=add(-goo[k]/goo[nx+1]*SL[k],k=1..nx);
+           RETURN(ANS);
+       else
+           print("NOT A LINEAR COMBO MOD ",p,".");
+           RETURN():
+       fi:
+else
+   ERROR(`topshift must apositive integer greater then -20`);
+fi:
+else
+   ERROR(`topshift must be integers.`);
+fi:
+end:
+#####################################################################
+#####################################################################
+##EXAMPLE:
+##
+## > E4:=1+240*add(n^3*q^n/(1-q^n),n=1..300):
+## > E6:=1-504*add(n^5*q^n/(1-q^n),n=1..300):
+## > P:=series(1/etaq(q,1,300),q,300):       
+## > ETA1:=etaq(q,1,300):
+## > F1:=sift(E4^16*E6*P,q,13,6,299):
+## > BB13:=[seq(ETA1^11*E6*E4^(3*j+1),j=0..5)]:
+## > SBB13:=[seq(_ETA1^11*_E6*_E4^(3*j+1),j=0..5)]:
+## > findlincombomodp(F1,BB13,SBB13,13,q,-8);
+##                                             nx = , 6
+## 
+##                                         # of terms , 19
+## 
+##                                                11
+##                                        -6 _ETA1   _E6 _E4
+## 
+##   Let E4(q), E6(q) be the standard Eisenstein series of
+##   weights 4 and 6, and let E(q) = (q;q)[infinity].
+##   Let F = sum a(n) q^n = E4^16*E6/E(q).
+##   We suspect that
+##   sum a(13*n+6) q^n = linear combination of
+##   E(q)^11*E6*E4^(3*j+1) (j=0..5) mod 13.
+##   Using findlincombomodp it seems that
+##   sum a(13*n+6) q^n = -6*E(q)^11*E4(q)*E6(q) mod 13.
+## 
+##
+#####################################################################
+qseries[findnonhom]:=proc(L,q,n,topshift)
+#This program generates a list of potential nonhomogeneous relations
+#of degree n among the list of q-series L.
+#
+   local xx,x,y,z,nx,n2,n3,gg,goo,gooo,c,dh,jj,g,k,w,d,i,ct,D,ii,h,G,ANS;
+   global X:
+if whattype(n)=integer and whattype(topshift)=integer then
+if n>0 and topshift>-20 then
+   X:='X';
+   D:=nops(L);
+   gg[1]:={};
+   xx:=expand((sum(x[i],i=1..D)+1)^(n) ):
+   nx:=nops(xx):
+   n2:=nx+20+topshift:#step this up if some solutions are spurious
+   n3:=n2+1:
+   print(`# of terms `,n3);
+   c:=array(1..nx,1..n2+1);
+   dh:=array(1..nx,1..D);
+   for jj from 1 to nx do
+      
+      G:=op(jj,xx):
+      
+      for i from 1 to D do
+         h[i]:=degree(G,x[i]):
+         dh[jj,i]:=h[i]:
+      od:
+      w:=product(L[ii]^h[ii],ii=1..D):
+      d:=series(w,q=0,n3+4);
+      for i from 0 to n2 do
+         c[jj,i+1]:=coeff(d,q,i);
+      od;
+      
+   od:
+   ct:=  linalg[transpose](c):
+   gooo:=(linalg[kernel](ct));
+  
+   for k from 1 to nops(gooo) do
+      goo:=gooo[k];
+      d:=op(dh):
+      g[k]:=0:
+   for i from 1 to nx do
+      g[k]:=g[k]+goo[i]*product(X[ii]^d[i,ii],ii=1..D):
+   od;
+      gg[k]:=g[k];
+  od;
+ print(`-----RELATIONS----of order---`,n);  
+   ANS:=convert(gg,set);
+   RETURN(ANS);
+else
+   ERROR(`n must be a positive integer and topshift must apositive integer greater then -20`);
+fi:
+else
+   ERROR(`n and topshift must be integers.`);
+fi:
+end:
+
+qseries[findnonhomcombo]:=proc()
+#This program tries to express f as a polynomial     
+#of degree n among the list of q-series in L.
+#
+   local xx,x,y,z,nx,n2,n3,gg,goo,gooo,c,dh,jj,g,k,w,d,i,ct,D,ii,h,G,ANSf,L,q,n,etaoption,
+       topshift,f,func,fq,ANS,ANSETA,geta;
+   global X:
+   X:='X':
+   f:=args[1]: L:=args[2]: q:=args[3]: n:=args[4]:
+   if nargs>4 and whattype(args[5])=integer then
+      topshift:=args[5]:
+      if nargs=6 then
+         etaoption:=args[6]:
+      else
+         etaoption:=no:      
+      fi:
+   fi:
+   if nargs=4 then
+      topshift:=0:
+      etaoption:=no:
+   fi:
+   if nargs=5 and whattype(args[5])<>integer then
+      topshift:=0:
+      etaoption:=args[5]:
+   fi:
+  ##print(` n= `,n, `topshift =`,topshift); 
+if whattype(n)=integer and whattype(topshift)=integer then
+if n>0 and topshift>-20 then
+
+   D:=nops(L);
+   gg[1]:={};
+   xx:=expand((sum(x[i],i=1..D)+1)^(n) ):
+   nx:=nops(xx):
+   n2:=nx+20+topshift:#step this up if some solutions are spurious
+   n3:=n2+1:
+   print(`# of terms `,n3);
+   c:=array(1..nx+1,1..n2+1);
+   print(`matrix is `,nx+1,` x `,n2+1);
+   dh:=array(1..nx,1..D);
+   for jj from 1 to nx do
+      G:=op(jj,xx):
+      for i from 1 to D do
+      h[i]:=degree(G,x[i]):
+      dh[jj,i]:=h[i]:
+      od:
+      w:=product(L[ii]^h[ii],ii=1..D):
+      ##d:=taylor(w,q=0,n3+4);
+      ##09-17-10: changed taylor to series
+      d:=series(w,q=0,n3+4);
+      func[jj]:=d:
+      for i from 0 to n2 do
+         c[jj,i+1]:=coeff(d,q,i);
+      od;
+   od:
+   fq:=series(f,q,n3+4):
+   for i from 0 to n2 do 
+      c[nx+1,i+1]:=coeff(fq,q,i):
+   od:
+   ct:=  linalg[transpose](c):
+   gooo:=(linalg[kernel](ct)):
+   ANS:={}: 
+   ANSETA:={}: 
+   for k from 1 to nops(gooo) do
+       goo:=gooo[k]:
+       d:=op(dh):
+       g[k]:=0:
+       geta[k]:=0:
+       if goo[nx+1]<>0 then
+           for i from 1 to nx do
+              g[k]:=g[k]+goo[i]*product(X[ii]^d[i,ii],ii=1..D):
+              if etaoption=`yes` then
+              geta[k]:=geta[k]+goo[i]*qseries[etamake](func[i],q,n3-2): 
+              fi:
+           od:
+           ANS:=ANS union {-g[k]/goo[nx+1]}:
+              if etaoption=`yes` then
+           ANSETA:=ANSETA union {-geta[k]/goo[nx+1]}:
+              fi:
+        fi:
+   od:
+ print(`-----possible linear combinations of degree------`,n):  
+if etaoption = `yes` then
+  print(ANSETA);
+fi:
+RETURN(ANS);
+else
+   ERROR(`n must be a positive integer and topshift must apositive integer greater then -20`);
+fi:
+else
+   ERROR(`n and topshift must be integers.`);
+fi:
+end:
+qseries[findpoly]:=proc() #This proc looks for a polynomial
+       local x,y,q,deg1,deg2,ARGLIST,TYPELIST,CORRECTL,check,dim1,dim2,A,num,k,j,B,qq,l,kk,POLY,kkk,i,POLYg,POLYfunc,ss,numtyp,tA,opkk:
+       global X,Y:
+       lprint(`WARNING: X,Y are global.`);
+       #relation between x,y of degree deg1 in x, and degree deg2 in y.
+       #The relation is checked to order O(q^check).
+       if nargs<5 then
+          ERROR(` number of arguments must be 5 or 6.`);
+       fi:
+       x:=args[1]:
+       y:=args[2]:
+       q:=args[3]:
+       deg1:=args[4]:
+       deg2:=args[5]:
+       ARGLIST:=[q,deg1,deg2];
+       TYPELIST:=map(whattype,ARGLIST);
+       ##05/15/99: change string->symbol here.
+       ##OLD: CORRECTL:=[string,integer,integer]:
+       CORRECTL:=[symbol,integer,integer]:
+       if TYPELIST=CORRECTL then
+         if nargs=6 then
+            check:=args[6]:
+         fi:
+         if nargs>6 then
+            ERROR(` findpoly can at most 6 arguments`);
+         fi:
+	 dim1:=(deg1+1)*(deg2+1):
+	 dim2:=dim1+10:
+	 print(` dims `, dim1, dim2);
+	 A:=array(1..dim1,1..dim2):
+	 num:=0:
+	 for k from 0 to deg1 do
+            for j from 0 to deg2 do
+	       num:=num+1:
+               B[num]:=X^k*Y^j:
+	       qq:=series(x^k*y^j,q,dim2+3):
+               for l from 0 to (dim2-1) do
+	          A[num,l+1]:=coeff(qq,q,l):
+	       od:
+	     od:
+	 od:
+	#removed 10/19/06: with(linalg):
+	tA:=linalg[transpose](A):
+	kk:=linalg[kernel](tA):
+	if kk={} then 
+	  lprint(` NO polynomial relation found. `);
+	else	
+	 POLY:=0;
+	 opkk:=op(kk);
+	 kkk:=opkk;
+	 for i from 1 to num do
+	   POLY:=POLY+B[i]*kkk[i]:
+	 od:
+	 POLYg:=0;
+	for j from 0 to deg2 do
+	  POLYg:=POLYg+factor(coeff(POLY,Y,deg2-j))*Y^(deg2-j):
+	od:
+        if nargs=6 then
+          print(`The polynomial is`);
+	  print(POLYg);
+	  POLYfunc:=unapply(POLYg,X,Y):
+	  ss:=series(POLYfunc(x,y),q,check+1):
+          print(`Checking to order`,check);
+	  print(ss);
+	  RETURN(POLYg):
+        else 
+          print(`The polynomial is`);
+	fi:
+        RETURN(POLY):
+        fi:
+      else
+        numtyp:=nops(TYPELIST):
+        ERROR(` Wrong type of argument. ARGLIST has type `,seq(TYPELIST[i],i=1..numtyp),
+        `It should have type`,seq(CORRECTL[i],i=1..numtyp));
+      fi:
+	end:
+#######################################################################
+#  qseries[jac2prod]
+#######################################################################
+
+macro(jac = `jac2prod/jac`);
+
+jac:=proc(a::integer, b::integer, c::infinity)
+    local Q;
+    if a<b then
+          if a>0 then
+Q:=` `(q^a,q^b)[infinity]*` `(q^(b-a),q^b)[infinity]*` `(q^b,q^b)[infinity];
+             RETURN(Q):
+          else
+             RETURN(` `(q^b,q^b)[infinity]);
+          fi:
+    else
+       ERROR(` a,b must satisy a<b `);
+       RETURN():
+    fi:
+end:
+#######################################################################
+#  qseries[jac2prod]
+#######################################################################
+#######################################################################
+# FUNCTION :  jac2prod   - converts a product of theta functions into
+#                          q-product form.
+# CALLING SEQUENCE :  jac2prod(jacexpr)
+# PARAMETERS :   jacexpr   - product of JAC(i,j,oo)
+#                            where i,j are integers
+#                            and 0 < i < j.
+#                                  =
+# SYNOPSIS :   
+# jac2prod(jacexpr) returns a q-product;ie a product of the
+#                            a   b
+# of functions of the form (q , q ).
+#######################################################################
+qseries[jac2prod]:=proc(JEXPR)
+   local JJ;
+   JJ:=JEXPR:
+   RETURN(eval(subs(JAC=jac,JJ))):
+end:
+
+macro(jac = jac):     
+#######################################################################
+#  qseries[jac2series]
+#######################################################################
+
+macro(tripleprod2 = `jac2series/tripleprod2`, qjac = `jac2series/qjac`);
+
+tripleprod2:=proc(z,q,T)
+    local x,lasti,i;
+        x := 0;
+        lasti := T;
+        for i from -lasti to lasti do
+            x := x+(-1)^i*z^i*q^(1/2*i*(i-1))
+        od;
+        RETURN(x)
+end:
+#########
+##
+##
+##OCT 24, 1997 - fixed a bug in qjac. Previously it called tripleprod
+##               which did not give enough terms. This been a replaced
+##               by a variant called tripleprod2 (see above).
+##
+#########
+qjac:=proc(a::integer, b::integer, T::integer)
+    local Q,t,c;
+    if T>0 then
+          if a<>0 then
+             t:=max(T,abs(b)):
+             ##c:=trunc(1/2*(b-2*a+(4*a^2-4*a*b+b^2+8*b*t)^(1/2))/b)+1: 
+	     ##Nov 15, 2002 added evalf to trunc
+             c:=trunc(evalf(1/2*(b-2*a+(4*a^2-4*a*b+b^2+8*b*t)^(1/2))/b))+1: 
+             RETURN(tripleprod2(q^a,q^b,c));   
+          else
+             RETURN(qseries[etaq](q,b,T));
+          fi:
+    else
+       ERROR(`  T must be positive. `);
+       RETURN():
+    fi:
+end:
+#######################################################################
+#  qseries[jac2series]
+#######################################################################
+#######################################################################
+# FUNCTION :  jac2series   - converts a product of theta functions into
+#                            q-product form.
+# CALLING SEQUENCE :  jacseries(jacexpr)
+# PARAMETERS :   jacexpr   - product of JAC(i,j,oo)
+#                            where i,j are integers
+#                            and 0 < i < j.
+#                                  =
+# SYNOPSIS :   
+# jacprod(jacexpr) returns a q-product;ie a product of the
+#                            a   b
+# of functions of the form (q , q ).
+#######################################################################
+qseries[jac2series]:=proc(JEXPR, T::integer)
+   local JJ;
+   JJ:=JEXPR:
+   RETURN(eval(subs({JAC=qjac,infinity=T},JJ))):
+end:
+
+macro(tripleprod2=tripleprod2, qjac = qjac):     
+qseries[jacprod]:=proc(a,b,q,T)
+	local x,i,lasti:
+	tripleprod(q^a,q^b,T)/tripleprod(q^(b),q^(3*b),T):
+end:
+#######################################################################
+#  qseries[jacprodmake]
+#######################################################################
+
+macro(jaccheck = `jacprodmake/jaccheck`,
+      periodfind = `jacprodmake/periodfind`,
+      periodfind2 = `jacprodmake/periodfind2`,
+      jacmake = `jacprodmake/jacmake`);
+
+
+#######################################################################
+# FUNCTION :  periodfind - finds the smallest period of a finite list
+# CALLING SEQUENCE :  periodfind(A,T)
+# PARAMETERS :   A   - list of integers
+#                P   - positive integer
+# SYNOPSIS :   
+# periodfind(A,T) returns P if 
+#      A[i] = A[i+P]   for each  i. 
+#######################################################################
+periodfind:=proc(A,T)
+   local num,n,perfi,pp,dud,i,j,lastj,diffc;
+   num:=T:       
+   n:=trunc(num/2):
+   perfi:=0:
+   pp:=2:
+   while perfi=0 do
+     dud:=0:
+     while dud=0 do
+      for i from 1 to pp do
+        lastj:=trunc(num/pp)-2:
+        for j from 0 to lastj do
+           diffc:=A[i+pp*j]-A[i+pp*j+pp]:
+           if diffc<>0 then
+              dud:=1:
+           fi: 
+        od:
+      od:
+      if dud=0 then
+         perfi:=1:
+         RETURN(pp):
+         dud:=1:
+      fi:
+     od:
+      pp:=pp+1:
+  od:
+end;
+periodfind2:=proc(A,T,PP)
+   global xprint:
+   local num,n,perfi,pp,dud,i,j,lastj,diffc,pset,k,np;
+   num:=T:       
+   n:=trunc(num/2):
+   perfi:=0:
+   pset:=numtheory[divisors](PP) minus {1}:
+   pp:=pset[1]:
+   if xprint then
+     lprint("TRYING period pp=",pp);
+   fi:
+   k:=1:
+   np:=nops(pset):
+   while perfi=0 do
+     dud:=0:
+     while dud=0 do
+      for i from 1 to pp do
+        lastj:=trunc(num/pp)-2:
+        for j from 0 to lastj do
+           diffc:=A[i+pp*j]-A[i+pp*j+pp]:
+           if diffc<>0 then
+              dud:=1:
+           fi: 
+        od:
+      od:
+      if dud=0 then
+         perfi:=1:
+         if xprint then
+           lprint("PERIOD FOUND: ",pp);
+         fi:
+         RETURN(pp):
+         dud:=1:
+      fi:
+     od:
+      if k < np then
+        k:=k+1:
+       pp:=pset[k]:
+       if xprint then
+         lprint("TRYING period pp=",pp);
+       fi:
+     else
+       RETURN( trunc(T/2)+2 ):
+       dud:=1:
+     fi:
+  od:
+end;
+#######################################################################
+# FUNCTION :  jaccheck - checks whether an array corresponds a 
+#                        theta-product.
+# CALLING SEQUENCE :  jaccheck(A,P):
+# PARAMETERS :   A   - list of integers
+#               P   - positive integer
+# SYNOPSIS :   
+# jaccheck(A,P) returns 1 if
+#     A[i] = A[P-i]   for each  i, 1 < i < (P/2);
+# otherwise 0 is returned. If jaccheck(A,P)=1 and A is periodic
+# with period P, then A corresponds to a certain theta product.
+#######################################################################
+jaccheck:=proc(A,P)
+     local n,jac,i:
+     n:=trunc(P/2):
+     jac:=1:
+     for i from 1 to n do
+         if A[i]<>A[P-i] then
+            jac:=0:
+            RETURN(0):
+         fi:
+     od:
+     if jac=1 then
+        RETURN(1):
+     fi:  
+     RETURN(-1):
+end:
+#######################################################################
+# FUNCTION :  jacmake  - connverts a list of integers into a 
+#                        theta-product if possible.
+# CALLING SEQUENCE :  jacmake(A,T):
+#                     jacmake(A,T,P):
+# PARAMETERS :   A   - list of integers
+#                T   - positive integer
+#                P   - positive integer
+# SYNOPSIS :                                    T
+# If f = product((1-q^i)^(-A[i]),i=1..T-1) + O(q )
+# then
+# jacmake(A,T) will return a product of the form
+#
+#    product( JAC(j,B,oo), j in S)
+#                                     T
+# if this product agrees with f to O(q ).
+#
+# Here JAC(j,B,oo) corresponds to the theta-function
+# tripleprod(q^j,q^B,oo) when  0 < j < B
+# and
+# JAC(0,B,oo) corresponds to the eta-product etaq(q,B,oo).
+# jacmake(A,T,P) does the same except it assumes the base (period) B is
+# a divisor of P.
+#######################################################################
+jacmake:=proc()
+   # 04/23/10 NEW VERSION
+   global xprint:
+   local A,T,PP,pp,y,mp,i:
+   if xprint then
+     lprint("jacmake started with args",args);
+   fi:
+   if nargs=2 or nargs=3 then
+     # OK
+   else
+      ERROR("jacmake takes 2 or 3 args");
+   fi:
+   A:=args[1]:
+   T:=args[2]:
+   if nargs=3 then
+     PP:=args[3]:
+   fi:
+   if nargs=2 then
+      pp:=periodfind(A,T):
+   else
+      pp:=periodfind2(A,T,PP):
+   fi:
+   if nargs=3 then
+     if  modp(PP,pp)<>0 then
+     print(`ERROR: PP should be multiple of pp`);
+     RETURN():
+     fi:
+   fi:
+   if pp>(T/2) then
+     print(` no period found `);
+     print(` This means either that there is no period,`);
+     print(` or a larger value of T should be chosen.`);
+     RETURN():
+   else
+     if jaccheck(A,pp)<>1 then
+        print(` not a theta function `);
+        RETURN():          
+     else
+     ##if nargs=3 then
+     ##  pp:=PP:
+     ##fi:
+     y:=1:
+     mp:=modp(pp,2):
+     if mp=0 then
+        for i from 1 to ((pp)/2-1) do
+           y:=y/(JAC(i,pp,infinity)/JAC(0,pp,infinity))^A[i]:
+        od:
+        y:=y/(JAC(pp/2,pp,infinity)/JAC(0,pp,infinity))^(A[pp/2]/2):
+     else
+        for i from 1 to (pp-1)/2 do
+           y:=y/(JAC(i,pp,infinity)/JAC(0,pp,infinity))^A[i]:
+        od:
+      fi:
+      y:=y/JAC(0,pp,infinity)^A[pp]:
+      RETURN(y):
+      fi:
+      fi:
+end:
+#######################################################################
+#  THE MAIN FUNCTION qseries[jacprodmake]
+#######################################################################
+        # 04/23/10 NEW VERSION
+        # 05/03/10 added global var xprint
+	qseries[jacprodmake]:=proc()
+          global xprint,ft0,fixjacp:
+          local f,q,T,ft,f0,_a,_b,i,n,j,d,_B,sum1,sum2,divj,divjb,m,_A,LT,PP,newT,je;
+          fixjacp:=args:
+          if not(type(xprint,boolean)) then
+               xprint:=false:
+          fi:
+          if nargs=3 or nargs=4 then
+            # OK
+          else
+            ERROR("nargs in jacprodmake should be 3 or 4");
+          fi:
+          f:=args[1]:
+          q:=args[2]:
+          T:=args[3]:
+          if nargs=4 then
+            PP:=args[4]:
+          fi:
+          ##05/03/10 added leadterm stuff
+	  ft0:=series(f,q,T+5):
+          if nops(ft0)=2 and op(1,ft0)=O(1) then
+             newT:=trunc(op(2,ft0))+5:
+	     ft:=series(f,q,newT):
+          else
+             ft:=ft0:
+             newT:=T+5:
+          fi:
+          LT:=series(`leadterm`(ft),q,newT):
+          LT:=convert(LT,polynom):
+	  if whattype(ft)=series  then
+	   f0:=coeff(ft,q,0):
+	   ##if f0=1 then
+	      _b:=series(ft/LT,q,newT):
+	      _b:=convert(_b,polynom):
+	      for i from 1 to T-1 do
+	         _B[i]:=coeff(_b,q,i):
+	      od:
+	      _A[1]:=_B[1]:
+ 	      for n from 2 to T-1 do
+                 sum2:=0:
+	         for j from 1 to n-1 do
+	            divj:=numtheory[divisors](j):
+                    sum1:=0:
+	            for d in divj do
+	               sum1:=sum1+d*(_A[d]):
+                    od:
+                    sum2:=sum2 + (_B[n-j])*sum1:
+                 od:
+                 sum1:=0:
+	            divjb:=numtheory[divisors](j) minus {n}:
+                    for d in divjb do
+	               sum1:=sum1+d*(_A[d]):
+	            od:
+	         sum2:=n*_B[n] - sum2 - sum1:
+	         _A[n]:=sum2/n:
+	      od:
+              if nargs=3 then
+                 je:=jacmake(_A,T-1):
+              else
+                 if xprint then
+                   lprint("_A done");
+                 fi:
+                 je:=jacmake(_A,T-1,PP):
+              fi:
+              #05/04/10: added error and LT stuff
+              if nops([je])=0 then
+                 fixjacp:=args:
+                 ERROR("jacprodmake failed (see gobal var fixjacp)");
+              else
+                 RETURN(LT*je):
+              fi:
+	   ##else
+	   ##   ERROR(`coeff of q^0 must be 1`);
+	   ##fi:
+	else
+	   ERROR(`f must be a series`);
+	fi:
+	end:
+
+macro(jaccheck = jacprod,
+      periodfind = periodfind,
+      periodfind2 = periodfind2,
+      jacmake = jacmake);
+
+qseries[mprodmake]:=proc(f,q,last) 
+#05/18/05
+#This procedure computes a product expansion of the form
+# (1+q^n1)*(1+q^n2)....
+#of the series f to order O(q^last).              
+	   local fp,tc,exq,g,aa,ld,h,hh,i,cf,etaprod,alast,sf,qqprod:
+           sf:=series(f,q,last+10):
+	   fp:=convert(sf,polynom):
+	   tc:=tcoeff(fp,q):
+	   exq:=ldegree(fp,q):
+	   g:=normal(fp/tc/q^exq):
+	   aa:=tc:
+	   ld:=1:
+	   alast:=last-exq:
+	   while ld>0 do
+	      h:=series(g-1,q=0,alast+1):
+	      hh:=0:
+	      for i from 1 to alast do 
+	         hh:=hh+coeff(h,q,i)*q^i:
+	      od:
+	      h:=hh:
+	      ##
+	      ##08/20/99: bug fix ldegree(0,q) returns infinity
+	      ##          in maple V release 5
+	      if h=0 then
+	        ld:=0:
+	      else
+	        ld:=ldegree(h,q):
+	      fi:
+	      cf:=coeff(h,q,ld):
+	      if ld>0 then
+	         aa:=(1+q^ld)^(cf)*aa:
+	         g:=g*(1+q^ld)^(-cf):
+	      fi:
+	   od:
+	   qqprod:=q^(exq)*aa:
+	   RETURN(qqprod):
+	end:
+qseries[packageversion]:=proc()
+lprint(`**************************************************************`);
+lprint(`*`);
+lprint(`*  qseries package version 1.1  - Mon Jul 16 15:24:26 EDT 2012`);
+lprint(`*  This version tested on Maple 10, 11, 12 and 13`); 
+lprint(`*`);
+lprint(`*  Please report any problems to fgarvan@ufl.edu`);
+lprint(`*  See `);
+lprint(`*  http://www.math.ufl.edu/~fgarvan/qmaple/qmaple.html `);
+lprint(`*  for documentation and help.`);
+lprint(`*`);
+lprint(`*  Previous versions:`);
+lprint(`        1.0 - Jun 2009 (MAPLE 10)`);
+lprint(`        0.9 - Apr 2008 (MAPLE 10)`);
+lprint(`        0.8 - May 2005 (MAPLE 9)`);
+lprint(`        0.7 - Mar 2004`);
+lprint(`        0.6 - Nov 2002`);
+lprint(`        0.5 - May 2000`);
+lprint(`        0.4 - Jan 2000`);
+lprint(`        0.3 - Nov 1999`);
+lprint(`        0.2 - Dec 1998`);
+lprint(`        0.1 - Dec 1997`);
+lprint(`**************************************************************`);
+RETURN():
+end:
+
+	qseries[prodmake]:=proc()
+        local ft,f0,_a,_b,i,n,j,d,_A,_B,sum1,sum2,divj,divjb,m,prd,f,q,T,bseq,lst;
+	####
+	#USAGE: prodmake(f,q,T)       returns q-product
+	#       prodmake(f,q,T,list)  returns q-product as a list of exponents
+	#
+	####
+        #04/01/00: added nargs bit
+        #03/30/07: add expand for symbolic prods
+        if nargs>4 then
+          ERROR(` number of arguments must be 3 or 4.`);
+        fi:
+        f:=args[1]:
+        q:=args[2]:
+        T:=args[3]:
+	####
+	ft:=series(f,q,T+5):
+	if whattype(ft)=series  then
+	   f0:=coeff(ft,q,0):
+	   if f0=1 then
+	      _b:=series(f,q,T):
+	      _b:=convert(_b,polynom):
+	      for i from 1 to T-1 do
+	         _B[i]:=coeff(_b,q,i):
+	      od:
+	      _A[1]:=_B[1]:
+ 	      for n from 2 to T-1 do
+                 sum2:=0:
+	         for j from 1 to n-1 do
+	            divj:=numtheory[divisors](j):
+                    sum1:=0:
+	            for d in divj do
+	               sum1:=expand(sum1+d*(_A[d])):
+                    od:
+                    sum2:=expand(sum2 + (_B[n-j])*sum1):
+                 od:
+                 sum1:=0:
+	            divjb:=numtheory[divisors](j) minus {n}:
+                    for d in divjb do
+	               sum1:=expand(sum1+d*(_A[d])):
+	            od:
+	         sum2:=expand(n*_B[n] - sum2 - sum1):
+	         _A[n]:=sum2/n:
+	      od:
+	      ####
+	      #04/01/00: added option of returning list
+	      if nargs=3 then		
+	         prd:=product((1-q^m)^(-_A[m]),m=1..(T-1)):
+	         RETURN(prd):
+	      else
+	         bseq:=[seq(-_A[m],m=1..(T-1))]:
+                 lst:=convert(bseq,list):
+                 RETURN(lst):
+	      fi:
+	   else
+	      ERROR(`coeff of q^0 must be 1`);
+	   fi:
+	else
+	   ERROR(`f must be a series`);
+	fi:
+	end:
+qseries[qbin]:=proc(q,m,n)
+        #06/21/09: allow q to be root of unity etc
+        if whattype(m)=integer and whattype(n)=integer then
+	  if m>=0 and m<=n then
+            if type(q,symbol) then
+	      RETURN(normal(aqprod(q,q,n)/aqprod(q,q,m)/aqprod(q,q,n-m)));
+            else
+	      RETURN(subs(_x=q,normal(aqprod(_x,_x,n)/aqprod(_x,_x,m)/aqprod(_x,_x,n-m))));
+            fi: 
+          else
+            RETURN(0);
+          fi:
+          else
+             ERROR(` m and n must be integers.`); 
+        fi:
+end:
+ 
+ qseries[qdegree]:=proc(QS)
+       # 10/14/10
+       RETURN(degree(convert(QS,polynom),q));
+ end:
+qseries[qetamake]:=proc(f,q,last) 
+#
+#03/16/04
+#Bug fixed 05/18/05
+#This is a version of etamake which returns _E(q^m) instead of eta(m*tau)
+#This procedure computes an eta-product expansion
+#of the series f to order O(q^last).              
+	   local fp,tc,exq,g,aa,ld,h,hh,i,cf,etaprod,alast,sf:
+           sf:=series(f,q,last+10):
+	   fp:=convert(sf,polynom):
+	   tc:=tcoeff(fp,q):
+	   exq:=ldegree(fp,q):
+	   g:=normal(fp/tc/q^exq):
+	   aa:=tc:
+	   ld:=1:
+	   alast:=last-exq:
+	   while ld>0 do
+	      h:=series(g-1,q=0,alast+1):
+	      hh:=0:
+	      for i from 1 to alast do 
+	         hh:=hh+coeff(h,q,i)*q^i:
+	      od:
+	      h:=hh:
+	      ##
+	      ##08/20/99: bug fix ldegree(0,q) returns infinity
+	      ##          in maple V release 5
+	      if h=0 then
+	        ld:=0:
+	      else
+	        ld:=ldegree(h,q):
+	      fi:
+	      cf:=coeff(h,q,ld):
+	      if ld>0 then
+	         aa:=_E(q^ld)^(-cf)*aa:
+	         g:=g*etaq(q,ld,alast)^cf:
+	      fi:
+	   od:
+	   ##etaprod:=aa
+           ##Fixed 05/18/05
+	   etaprod:=aa*q^exq:
+	   RETURN(etaprod):
+	end:
+#######################################################################
+#  qseries[qfactor]
+#######################################################################
+##01/08/00: 
+##BUGS FIXED: 
+## (1) Fix problem when numerator=1
+## Example OLD version: 
+## >    qfactor(1/(1-q));
+## Error, (in qfactor/bigqpfac) unable to convert
+##
+## Example NEW version: 
+## >    qfactor(1/(1-q));
+##                                         1
+##                                     - ------
+##                                       -1 + q
+## (2) Fix problem when input is a polynom
+## Example OLD version: 
+## >    qfactor(1+q+q^2);
+##                                    2
+##                                   q  + q + 1
+## Example NEW version: 
+## >    qfactor(1+q+q^2);
+##                                          3
+##                                     1 - q
+##                                     ------
+##                                     1 - q
+##NOTE: Problems fixed by fixing qfopexp.
+##
+#######################################################################
+##10/24/99: did maple-update and maple-local-make
+#######################################################################
+##10/19/99:  BUGS FIXED:  (1) added line in qsplit to make sure tcoeff
+##			      returns correct value.
+##                        (2) added extra condition statement to qfactor
+##			      so that qfactor(f)=f if f has type symbol
+##			      or rational. 
+#######################################################################
+
+macro(qsplit = `qfactor/qsplit`, qpfac = `qfactor/qpfac`, qfac=`qfactor/qfac`,qfopexp=`qfactor/qfopexp`, bigqpfac=`qfactor/bigqpfac`);
+
+
+#######################################################################
+# FUNCTION :  qsplit - returns a list [f,tc,ld,td]                      
+# CALLING SEQUENCE :  qsplit(f)       
+# PARAMETERS :   f   - a polynomial in q
+# SYNOPSIS :   
+# qsplit(f) returns the list [f,tc,ld,td]
+#      where f = tc*(q^ld + ........+()q^td.
+#######################################################################
+##
+ 
+qsplit:=proc(f::polynom)
+    local tc,ld,td,f2;
+    f2:=expand(f):##<--- this line added 10/19/99
+                        ##If left unexpanded tcoeff may return incorrect value.
+    tc := tcoeff(f2, q);
+### WARNING: ldegree(0,x) now returns infinity
+    ld := ldegree(f2, q);
+### WARNING: degree(0,x) now returns -infinity
+    td := degree(f2, q);
+    RETURN([f,tc,ld,td]);
+end;
+
+#######################################################################
+# FUNCTION :  qpfac - factor a q polynom into factors (1-q^i)          
+# CALLING SEQUENCE :  qpfac(f,T,s)       
+#                      qpfac(f)           
+#                      qpfac(f,T)         
+#                      qpfac(f,s)         
+# PARAMETERS :   f   - a polynomial in q
+#                T - upper bound for i (optional)
+#                s - string (optional)
+# SYNOPSIS :   
+# qpfac(f) attempts to factor the poly q into factors (1-q^i)
+# if it fails it simply returns the input f.
+# If the third (or second) argument s=test is given then qpfac
+# will return FAIL if f can not be q-factored.
+#######################################################################
+##
+ 
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 
+ 
+qpfac:=proc()
+	local m1, m2, LBITS, tc, ld, g, gl, gl1, gl2, gl3, gd, ggc, gprod, gser, gno,f;
+	f:=args[1]:
+	if nargs=1 or (nargs=2 and type(args[2],integer)<>true) then
+	  m1:=4:
+	  m2:=3:
+	else
+	  m1:=0:
+	  m2:=args[2]
+	fi:
+	LBITS:=qsplit(f);
+	tc:=LBITS[2]:
+	ld:=LBITS[3]:
+        g:=convert(f/tc/q^ld,polynom);
+        gl:=convert(g,list);
+	gl1:=subs(q=1,gl);
+	gl2:=map(whattype,gl1);
+	gl3:=convert(gl2,set);
+	if gl3 = '{integer}' then
+### WARNING: degree(0,x) now returns -infinity
+	   gd:=degree(g,q);
+	   ggc:=coeff(g,q,0);
+	   gprod:=prodmake(g,q,m1*gd+m2);
+	   gser:=convert(series(g-gprod,q,m1*gd+m2+5),polynom);
+	   if gser<>0 then
+	        if nargs=2 and args[2]=test then
+		   RETURN(FAIL);
+		fi:
+		if nargs=3 and args[3]=test then
+		   RETURN(FAIL);
+		fi:
+		if nargs=1 or (nargs=2 and args[2]<>test) then
+		   RETURN(f);
+	        fi:
+	   else
+	        gno:=normal(gprod-g);
+	  	if gno = 0 then
+		   RETURN(tc*gprod*q^ld);
+		else
+	            if nargs=2 and args[2]=test then
+		       RETURN(FAIL);
+		    fi:
+		    if nargs=3 and args[3]=test then
+		       RETURN(FAIL);
+		    fi:
+		    if nargs=1 or (nargs=2 and args[2]<>test) then
+		       RETURN(f);
+	            fi:
+	         fi:
+	    fi:
+	else
+	        if nargs=2 and args[2]=test then
+		   RETURN(FAIL);
+		fi:
+		if nargs=3 and args[3]=test then
+		   RETURN(FAIL);
+		fi:
+		if nargs=1 or (nargs=2 and args[2]<>test) then
+		   RETURN(f);
+	        fi:
+	fi:
+end;
+#######################################################################
+# FUNCTION :  qfopexp - factors a SINGLE q-expression and factors 
+#                       as much as possible into terms of the form (1-q^i)
+# CALLING SEQUENCE :  qfopexp(f,T,s)       
+#                      qfopexp(f)           
+#                      qfopexp(f,T)         
+#                      qfopexp(f,s)         
+# PARAMETERS :   f   - a single q-expression (ie. a factor of a factored
+#                      expression.
+#                T - upper bound for i (optional)
+#                s - string (optional)
+# SYNOPSIS :   
+#   An expression that cant be q-factored is left alone.
+#######################################################################
+##
+ 
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 
+ 
+ qfopexp:=proc()
+local expr,wh,n,whL,cond,s;
+    expr:=args[1];
+    wh:=whattype(expr);
+    n:=nops([op(expr)]);
+    whL:=map(whattype,[op(expr)]);
+    if n=2 and whL[1]=`+` and whL[2]=integer then
+       cond:=1:
+    else
+       cond:=0;
+    fi;
+    if wh=`+` or cond=1 then
+       s:=subs(q=2,expr);
+       if type(s,rational)=true then
+          RETURN(qfac(args));
+        else
+           RETURN(expr);
+        fi:
+    else
+        RETURN(expr);
+    fi;
+ end;
+#######################################################################
+# FUNCTION :  bigqpfac - factor a q polynom into factors (1-q^i)          
+# CALLING SEQUENCE :  bigqpfac(f,T,s)       
+#                      bigqpfac(f)           
+#                      bigqpfac(f,T)         
+#                      bigqpfac(f,s)         
+# PARAMETERS :   f   - a polynomial in q
+#                T - upper bound for i (optional)
+#                s - string (optional)
+# SYNOPSIS :   
+# bigqpfac(f) attempts to factor the poly q into factors (1-q^i)
+# if it fails it simply returns the input f.
+# If the third (or second) argument s=test is given then qpfac
+# will return FAIL if f can not be q-factored.
+# This is a version of qpfac. This version does not fail if it comes
+# across a term with other variables beside q - these are simply 
+# left alone.
+#######################################################################
+##
+ 
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 
+ 
+ bigqpfac:=proc()
+        local k,expr,na,qtmp,rst,L1,L2,new,conc;
+    expr:=args[1]:
+###
+###01/08/00: add following if .. fi
+###
+if type(expr,symbol)=true or type(expr,rational)=true then
+ RETURN(expr);
+else
+    na:=nargs;
+    if na=1 then
+       qtmp:=x->qfopexp(x);
+    else
+        rst:=seq(args[k],k=2..nargs);
+        qtmp:=x->qfopexp(x,rst);
+    fi:
+###
+###01/08/00: add following if .. fi
+###
+    conc:=0:
+    if type(expr,polynom)=true and type(expr,`+`)=true then
+	RETURN(qtmp(expr)):
+    else	
+       L1:=[op(expr)];
+       L2:=map(qtmp,L1);
+       if type(expr,`^`)=true then
+          new:=L2[1]^L2[2];    
+          if nops(L2)>2 then
+            ERROR(`nops(L2)>2 in bigqfac`);
+          fi:
+       else
+          ##new:=convert(L2,`*`);
+          new:=convert(L2,whattype(expr));
+       fi:
+       RETURN(new);
+    fi:
+fi:    
+### WARNING: `rst` is a lexically scoped local
+ end;
+#######################################################################
+#  2ND MAIN FUNCTION qseries[qfac]
+#######################################################################
+ 
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 
+ 
+	        qfac:=proc()
+		local f,T;
+		f:=args[1]:
+	        if nargs=1 then
+		   if type(f,ratpoly)=true then
+		      if type(f,polynom) then
+		         RETURN(qpfac(f));
+		      else
+	                 RETURN(qpfac(numer(f))/qpfac(denom(f)));
+		      fi:
+		   else
+	              ERROR(`f must be ratpoly`);		
+		   fi:
+		else
+		   T:=args[2]:
+		   if type(f,ratpoly)=true then
+		      if type(f,polynom) then
+		         RETURN(qpfac(f,T));
+		      else
+	                 RETURN(qpfac(numer(f),T)/qpfac(denom(f),T));
+		      fi:
+		   else
+	              ERROR(`f must be ratpoly`);		
+		   fi:
+		fi:
+	end:
+#######################################################################
+#  THE MAIN FUNCTION qseries[qfactor]
+#######################################################################
+		   		
+##
+ 
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 
+ 
+	qseries[qfactor]:=proc()
+		local f,T,k,n,newargs1,newargs2;
+		f:=factor(args[1]):
+                ## This part added 10/19/99
+### WARNING: the definition of the type `symbol` has changed'; see help page for
+### details
+                if type(f,symbol)=true or type(f,rational)=true then
+                  RETURN(f);
+                else
+
+		   if type(f,ratpoly)=true then
+		      if type(f,polynom) then
+		         RETURN(bigqpfac(f));
+		      else
+		         n:=nargs;
+                         if n=1 then
+	                    RETURN(bigqpfac(numer(f))/bigqpfac(denom(f)));
+                         else
+                            newargs1:=numer(f),seq(args[k],k=2..n);
+                            newargs2:=denom(f),seq(args[k],k=2..n);
+	                    RETURN(bigqpfac(newargs)/bigqpfac(newargs));
+		         fi:
+                      fi:
+		   else
+	              ERROR(`f must be ratpoly`);		
+		   fi:
+		fi:
+	end:
+macro(qsplit = qsplit, qpfac = qpfac, qfac=qfac,qfopexp=qfopexp, bigqpfac=bigqpfac);
+
+#++++++++++++++++++++++++++++++++++++++++++++++++++++
+     qseries[qs2jaccombo]:=proc()
+#       This proc tries to write qseries as a linear combination
+#       of jacprods.
+        local xx,nn,j,yy,qs,q,T,PP;
+        if nargs<>3 and nargs<>4 then
+           ERROR("nargs = 3 or 4");
+        fi:
+        qs:=args[1]:
+        q:=args[2]:
+        T:=args[3]:
+        if nargs=4 then
+         PP:=args[4]:
+        fi:
+        if not(type(qs,`+`)) then
+           ERROR("qs not of + type");
+        fi:
+        xx:=0:
+        nn:=nops(qs):
+        if nargs=3 then
+           for j from 1 to nn do
+             yy:=jacprodmake(op(j,qs),q,T):
+             xx:=xx+yy:
+           od:
+        else
+           for j from 1 to nn do
+             yy:=jacprodmake(op(j,qs),q,T,PP):
+             xx:=xx+yy:
+           od:
+        fi:
+       RETURN(xx):
+     end:
+qseries[quinprod]:=proc(z,q,T)
+        local x,i,j,lasti,leftid,x1,x2,rightid;
+	# If T = prodid
+        # then a product form of the identity is returned.
+	# If T = seriesid
+        # then a series form of the identity is returned.
+	# If T is a positive integer then a series to O(q^T)
+	# is returned.
+	# Determine output form
+	if type(T,posint) then	
+	   x:=0:
+	   lasti:=trunc( 7/6+1/6*(73+24*T)^(1/2))+1:
+	   for i from -lasti to lasti do
+	     x:=x + ( (-z)^(-3*i)-(-z)^(3*i+1) )
+                    *q^(i*(3*i+1)/2):
+	   od:
+	   RETURN(x):
+	else
+           if T=prodid or T=seriesid then
+	      leftid:=` `(-z,q)[infinity]
+	              *` `(-q/z,q)[infinity]
+	              *` `(z^2*q,q^2)[infinity]
+	              *` `(1/z^2*q,q^2)[infinity]
+	              *` `(q,q)[infinity]:
+	      if T=prodid then
+	      x1:=` `(q^2/z^3,q^3)[infinity]
+	          *` `(q*z^3,q^3)[infinity]
+	          *` `(q^3,q^3)[infinity]:
+	      x2:=` `(q/z^3,q^3)[infinity]
+	          *` `(q^2*z^3,q^3)[infinity]
+	          *` `(q^3,q^3)[infinity]:
+	      x:= x1+z*x2:
+	      RETURN(leftid=x):
+              else
+	     rightid:=sum(( (-z)^(-3*m)-(-z)^(3*m-1) )
+                    *q^(m*(3*m+1)/2),m=-infinity..infinity):
+	      RETURN(leftid=rightid):
+              fi:
+           else
+	   fi:
+	fi:
+end:
+	qseries[sift]:=proc(s,q,n,k,T)
+	        #
+		# sum a_i q^i --> sum a_[ni+k] q^i
+	        #
+	 	local y,i,st,lasti:
+                st:=series(s,q,T+5):
+        if whattype(st)=series  then
+	 	y:=0:
+		lasti:=floor((T-k)/n):
+	 	for i from 0 to lasti do
+	 	  ##y:=y+coeff(s,q,(n*i+k))*q^i:
+                  ##fixed 11-16-06
+	 	  y:=y+coeff(st,q,(n*i+k))*q^i:
+	 	od:
+		RETURN(y):
+	else
+	      ERROR(`s must be a series`);
+	fi:
+	end:
+qseries[theta]:=proc(z,q,T)
+	local x,i:
+	x:=0:
+	for i from -T to T do
+	  x := x + z^i*q^(i*i):
+	od:
+	RETURN(x):
+end:
+qseries[theta2]:=proc(q,T)
+        local N:
+        N:=trunc(sqrt(T))+2:
+        RETURN(qseries[theta](q,q,N)*q^(1/4)):
+end:
+qseries[theta3]:=proc(q,T)
+        local N:
+        N:=trunc(sqrt(T))+1:
+        RETURN(qseries[theta](1,q,N)):
+end:
+qseries[theta4]:=proc(q,T)
+        local N:
+        N:=trunc(sqrt(T))+1:
+        RETURN(qseries[theta](-1,q,N)):
+end:
+qseries[tripleprod]:=proc(z,q,T)
+        local x,lasti,i,leftid,rightid;
+	# If T = seriesid
+        # then a series form of the identity is returned.
+	# If T is a positive integer then a series to O(q^T)
+	# is returned.
+	# Determine output form
+	if type(T,posint) then	
+   	   x:=0:
+   	   lasti:=trunc( sqrt(2*T+1/4)+1/2)+1:
+   	   for i from -lasti to lasti do
+   	     x:=x + (-1)^i*z^i*q^(i*(i-1)/2):
+   	   od:
+   	   RETURN(x):
+	else
+           if T=seriesid then
+	      leftid:=` `(z,q)[infinity]
+	              *` `(q/z,q)[infinity]
+	              *` `(q,q)[infinity]:
+	      rightid:=sum((-1)^m*z^m*q^(m*(m-1)/2),   
+                   m=-infinity..infinity):
+	      RETURN(leftid=rightid):
+           else
+              ERROR(`Invalid T. T must either be a positive integer or the string seriesid`);
+	   fi:
+	fi:
+end:
+qseries[winquist]:=proc(a,b,q,T)
+	local x,i,j,lasti:
+	x:=0:
+	lasti:=trunc( 7/6+1/6*(25+24*T)^(1/2))+1:
+	for i from 0 to lasti do
+	for j from -lasti to lasti do
+	  x:=x + (-1)^(i+j)*( (a^(-3*i)-a^(3*i+3))*(b^(-3*j)-b^(3*j+1))
+	                     + (a^(-3*j+1)-a^(3*j+2))*(b^(3*i+2)-b^(-3*i-1)))
+                           *q^( 3*i*(i+1)/2 + j*(3*j+1)/2 ):
+	od:
+	od:
+	RETURN(x):
+end:
+ 
+#++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 
+ 
+ qseries[zqfactor]:=proc()
+        local NF,G,numt,numlim,c,FF,TT,LL,ld,tt,zqf,buglim,F,z,q,N;
+	if nargs>5 or nargs<4 then
+	   ERROR(`zqfactor takes 4 or 5 args.`);
+	fi:
+	if nargs=5 then 
+	   buglim:=args[5]:
+	else
+	   buglim:=1000:
+	fi:
+	F:=args[1]:
+	z:=args[2]:
+	q:=args[3]:
+	N:=args[4]:
+	#
+	#Factor F into a product of terms (1 - a[i,j] z^i q^j)
+	#N = largest j 
+	#buglim = max number of terms (default is 1000 but can be assigned)
+	#
+	##
+	##
+	##EXAMPLE: L1:=tripleprod(-z^2*q^3,q^4,40);
+	##         L2:=tripleprod(-z^2*q,q^4,40);
+	##         zqfactor(L1-L2/z,q,20);     
+	##
+        G:=1:
+        NF:=F:
+        numt:=0:
+        numlim:=buglim:
+        while NF<>1 and numt<=numlim do
+             c:=coeff(NF,q,0):
+             if c<>1 then
+                 NF:=NF/c:
+                 G:=G/c:
+ 	          numt:=numt+1:
+             fi:
+             FF:=normal(series(NF,q,N+1)):
+ 	      FF:=convert(FF,polynom):
+             TT:=expand(tcoeff(FF-1,q)):
+             LL:=[op(TT)]:
+             ld:=ldegree(FF-1,q):
+             for tt in LL do
+                if type(tt,integer) and tt<>(-1) then
+                   zqf:=(1-q^ld)^(-tt):
+                else
+                   zqf:=1+tt*q^ld:
+                fi:
+                numt:=numt+1:
+                G:=G/zqf: NF:=NF/zqf:
+                NF:=normal(series(NF,q,N+1));
+                 NF:=convert(NF,polynom):
+             od;
+          od;
+          RETURN(1/G);
+ end;
+#++++++++++++++++++++++++++++++++++++++++++++++++++++
+save( qseries, 
+`jacprodmake/jaccheck`
+, 
+`jacprodmake/periodfind` 
+, 
+`jacprodmake/periodfind2` 
+, 
+`jacprodmake/jacmake`
+, 
+`jac2prod/jac`
+, 
+`jac2series/tripleprod2`
+, 
+`jac2series/qjac`
+, 
+`qfactor/qsplit`
+, 
+`qfactor/qpfac`
+, 
+`qfactor/qfac`
+, 
+`qfactor/qfopexp`
+, 
+`qfactor/bigqpfac`
+,
+cat(Homelib,"\\","qseries.m"));
+##Homelib is assigned in the maple.ini file.
+##For example: Homelib:="C:\\cygwin\\home\\fgarvan\\maple\\mylib":
+##Homelib can be changed to your own location
