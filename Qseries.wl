@@ -23,7 +23,9 @@ theta3::usage =
   "theta3[q, T] computes the theta function, defined as the sum of q^(i^2) from i = -T to T.";
 theta4::usage =
   "theta4[q, T] computes the theta function, defined as the sum of (-1)^i * q^(i^2) from i = -T to T.";
-findcong::usage = 
+jacprod::usage = 
+  "jacprod[a, b, q, T] returns the q-series expansion to O(q^T) of the Jacobi-type infinite product aqprod[q^a, q^b, Infinity]*aqprod[q^(b-a),q^b, Infinity] ";
+  findcong::usage = 
     "findcong[QS_, T_, LM_:Null, XSET_:{}] computes a set of congruence relations based on inputs:
     QS: a polynomial with variable q,
     T: a target integer,
@@ -32,8 +34,8 @@ findcong::usage =
     Returns a set of lists {r, M, P^R} where P^R is a prime power satisfying certain conditions.";
 findcong::argerr = 
 	"findcong takes 2, 3, or 4 arguments.";
-jacprod::usage = 
-  "jacprod[a, b, q, T] returns the q-series expansion to O(q^T) of the Jacobi-type infinite product aqprod[q^a, q^b, Infinity]*aqprod[q^(b-a),q^b, Infinity] ";
+prodmake::usage = 
+  "prodmake[f, q, T] converts the q-series f into a product expansion that agrees with f to O(q^T).";
 
 Begin["`Private`"];
 
@@ -175,8 +177,83 @@ end proc
 *)
 jacprod[a_,b_,q_,t_] := Series[aqprod[q^a,q^b, t+1]*aqprod[q^(b-a),q^b,t+1], {q, 0, t}]
 
+(*prodmake*)
+prodmake[f_, q_, T_, returnList_: False] := Module[
+    {ft, f0, b, B, A, sum1, sum2, divj, divjb, prd, coeffs},
+    
+    (* Check number of arguments *)
+    If[Length[{f, q, T, returnList}] > 4,
+        Message[ProdMake::args, "Number of arguments must be 3 or 4"];
+        Return[$Failed]
+    ];
+    
+    (* Get series expansion *)
+    ft = Series[f, {q, 0, T + 5}];
+    
+    (* Check if input is a series *)
+    If[Head[ft] =!= SeriesData,
+        Message[ProdMake::series, "f must be a series"];
+        Return[$Failed]
+    ];
+    
+    (* Get constant term *)
+    f0 = SeriesCoefficient[ft, 0];
+    
+    If[f0 == 1,
+        (* Get coefficients directly from series *)
+        coeffs = Table[SeriesCoefficient[ft, n], {n, 0, T}];
+        
+        (* Initialize arrays *)
+        B = coeffs[[2 ;; T]];  (* Skip the constant term *)
+        
+        (* Only proceed if the first value divides evenly *)
+        If[IntegerQ[B[[1]]],
+            A = Association[1 -> B[[1]]],
+            Return[$Failed]
+        ];
+        
+        (* Main computation loop *)
+        Do[
+            sum2 = 0;
+            Do[
+                divj = Divisors[j];
+                sum1 = Sum[d * A[d], {d, divj}];
+                sum2 += B[[n - j]] * sum1,
+                {j, 1, n - 1}
+            ];
+            
+            divjb = Complement[Divisors[n], {n}];
+            sum1 = Sum[d * A[d], {d, divjb}];
+            
+            sum2 = Expand[n * B[[n]] - sum2 - sum1];
+            
+            (* Only proceed if we get an integer result *)
+            If[IntegerQ[sum2/n],
+                A[n] = sum2/n,
+                Return[$Failed]
+            ],
+            {n, 2, T - 1}
+        ];
+        
+        (* Return result based on returnList parameter *)
+        If[!returnList,
+            prd = Product[(1 - q^m)^(-A[m]), {m, 1, T - 1}];
+            Return[Simplify[prd]]
+        ,
+            Return[Table[-A[m], {m, 1, T - 1}]]
+        ],
+        
+        Message[ProdMake::coeff, "Coefficient of q^0 must be 1"];
+        Return[$Failed]
+    ]
+];
+
+(* Define error messages *)
+ProdMake::args = "`1`";
+ProdMake::series = "`1`";
+ProdMake::coeff = "`1`";
+
 (*findcong*)
 
 End[];
 EndPackage[];
-
