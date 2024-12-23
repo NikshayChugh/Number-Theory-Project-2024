@@ -25,17 +25,23 @@ theta4::usage =
   "theta4[q, T] computes the theta function, defined as the sum of (-1)^i * q^(i^2) from i = -T to T.";
 jacprod::usage = 
   "jacprod[a, b, q, T] returns the q-series expansion to O(q^T) of the Jacobi-type infinite product aqprod[q^a, q^b, Infinity]*aqprod[q^(b-a),q^b, Infinity] ";
-  findcong::usage = 
-    "findcong[QS_, T_, LM_:Null, XSET_:{}] computes a set of congruence relations based on inputs:
-    QS: a polynomial with variable q,
-    T: a target integer,
-    LM (optional): an upper bound for M (defaults to Floor[Sqrt[T]]),
-    XSET (optional): a set of excluded integers.
-    Returns a set of lists {r, M, P^R} where P^R is a prime power satisfying certain conditions.";
+findcong::usage = 
+  "findcong[QS_, T_, LM_:Null, XSET_:{}] computes a set of congruence relations based on inputs:
+  QS: a polynomial with variable q,
+  T: a target integer,
+  LM (optional): an upper bound for M (defaults to Floor[Sqrt[T]]),
+  XSET (optional): a set of excluded integers.
+  Returns a set of lists {r, M, P^R} where P^R is a prime power satisfying certain conditions.";
 findcong::argerr = 
 	"findcong takes 2, 3, or 4 arguments.";
 prodmake::usage = 
   "prodmake[f, q, T] converts the q-series f into a product expansion that agrees with f to O(q^T).";
+prodmake::args = "`1`";
+prodmake::series = "`1`";
+prodmake::coeff = "`1`";
+qfactor::usage = 
+  "qfactor[f, q, T] first factorises f and then applies prodmake to O(q^T).";
+
 
 Begin["`Private`"];
 
@@ -183,7 +189,7 @@ prodmake[f_, q_, T_, returnList_: False] := Module[
     
     (* Check number of arguments *)
     If[Length[{f, q, T, returnList}] > 4,
-        Message[ProdMake::args, "Number of arguments must be 3 or 4"];
+        Message[prodmake::args, "Number of arguments must be 3 or 4"];
         Return[$Failed]
     ];
     
@@ -192,7 +198,7 @@ prodmake[f_, q_, T_, returnList_: False] := Module[
     
     (* Check if input is a series *)
     If[Head[ft] =!= SeriesData,
-        Message[ProdMake::series, "f must be a series"];
+        Message[prodmake::series, "f must be a series"];
         Return[$Failed]
     ];
     
@@ -209,7 +215,7 @@ prodmake[f_, q_, T_, returnList_: False] := Module[
         (* Only proceed if the first value divides evenly *)
         If[IntegerQ[B[[1]]],
             A = Association[1 -> B[[1]]],
-            Return[$Failed]
+            Return[f]
         ];
         
         (* Main computation loop *)
@@ -230,7 +236,7 @@ prodmake[f_, q_, T_, returnList_: False] := Module[
             (* Only proceed if we get an integer result *)
             If[IntegerQ[sum2/n],
                 A[n] = sum2/n,
-                Return[$Failed]
+                Return[f]
             ],
             {n, 2, T - 1}
         ];
@@ -243,15 +249,24 @@ prodmake[f_, q_, T_, returnList_: False] := Module[
             Return[Table[-A[m], {m, 1, T - 1}]]
         ],
         
-        Message[ProdMake::coeff, "Coefficient of q^0 must be 1"];
-        Return[$Failed]
+        Message[prodmake::coeff, "Coefficient of q^0 must be 1"];
+        Return[f]
     ]
 ];
 
-(* Define error messages *)
-ProdMake::args = "`1`";
-ProdMake::series = "`1`";
-ProdMake::coeff = "`1`";
+(*qfactor*)
+qfactor[f_, q_, t_] := Module[{prod, fullFactors, series},
+    series = Normal[Series[f, {q, 0, t}]];
+    fullFactors = Select[FactorList[series], #[[1]] =!= -1 &];
+    prod = 1;
+    Do[
+        If[Exponent[fullFactors[[i,1]], q] <= t,
+            prod *= prodmake[fullFactors[[i,1]], q, t]^fullFactors[[i,2]]
+        ],
+        {i, 2, Length[fullFactors]}
+    ];
+    Return[Simplify[prod]]
+];
 
 (*findcong*)
 
