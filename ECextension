@@ -1,0 +1,110 @@
+BeginPackage["ECextension`"]
+
+(* ::Section::*)(*Helper Functions*)ClearAll[areProjectivelyEquivalent,chordAndTangent];
+
+(*areProjectivelyEquivalent:Test whether two projective points (lists of numbers) are equivalent up to a nonzero scalar.*)
+areProjectivelyEquivalent[P1_List,P2_List]:=Module[{rat=Null},If[Length[P1]!=Length[P2],Return[False]];
+Do[If[P1[[i]]===0,If[P2[[i]]=!=0,Return[False]],If[rat===Null,rat=P2[[i]]/P1[[i]],If[!Chop[P2[[i]]-rat P1[[i]]]===0,Return[False]]]],{i,Length[P1]}];
+True];
+
+(*chordAndTangent:Given a homogeneous cubic F in variables {x,y,z} and a projective point P on F,return a second point on F.This is a heuristic implementation:we try a simple perturbation in the first coordinate;if that fails,try the second.*)
+chordAndTangent[F_,P_List]:=Module[{vars,x,y,z,perturb,sol},vars=Variables[F];
+{x,y,z}=vars;
+(*Try perturbing the first coordinate*)perturb=ReplacePart[P,1->P[[1]]+1];
+sol=Simplify[F/. Thread[vars->perturb]];
+If[sol===0,Return[perturb],(*Else try perturbing the second coordinate*)perturb=ReplacePart[P,2->P[[2]]+1];
+If[Simplify[F/. Thread[vars->perturb]]===0,Return[perturb],(*Otherwise,give up and return P itself (this is not ideal)*)Return[P]]]];
+(* ::Section::*)
+(*Main Function:EllipticCurveFromCubic*)
+ClearAll[EllipticCurveFromCubic];
+Options[EllipticCurveFromCubic]={Algorithm->"sage",Equivalence->False};
+
+EllipticCurveFromCubic[F_,P_,OptionsPattern[]]:=Module[{vars,x,y,z,alg,equiv,P2,P3,a,b,M,invM,FTrans,E,transX,transY,transZ,dx,dy,dz,dxP2,dyP2,dzP2,Q,Q0,Q1,Q2},alg=OptionValue[Algorithm];
+equiv=OptionValue[Equivalence];
+(*Check that F is a homogeneous cubic in three variables*)vars=Variables[F];
+If[Length[vars]!=3,Return["Error: F is not a polynomial in three variables."]];
+{x,y,z}=vars;
+If[!MatchQ[Exponent[F,vars],{3,3,3}],Throw["Polynomial is not homogeneous of degree 3"]];
+
+(*Check that P is a 3-tuple and lies on F=0*)If[Length[P]!=3,Return["Error: P is not a valid projective point."]];
+If[Not[Simplify[F/. Thread[vars->P]]===0],Return["Error: the point P does not lie on F=0."]];
+(*Get two additional points on the curve via the chord and tangent method*)P2=chordAndTangent[F,P];
+P3=chordAndTangent[F,P2];
+(*Check for a flex:if P2 and P3 are projectively equivalent*)If[areProjectivelyEquivalent[P2,P3],(*FLEX CASE:Use the tangent to F at P2 to obtain a second point Q*)dx=D[F,x];dy=D[F,y];dz=D[F,z];
+dxP2=dx/. Thread[vars->P2];
+dyP2=dy/. Thread[vars->P2];
+dzP2=dz/. Thread[vars->P2];
+(*Determine Q by perturbing one coordinate depending on P2*)If[P2[[1]]=!=0,Q0=P[[1]];
+(*If derivative dy is zero,adjust y;otherwise,use dz/dy*)Q1=If[dyP2===0,P[[2]]+1,P[[2]]-dzP2/dyP2];
+Q2=P[[3]]+1,If[P2[[2]]=!=0,Q1=P2[[2]];
+Q0=If[dxP2===0,P[[1]]+1,P[[1]]-dzP2/dxP2];
+Q2=P[[3]]+1,(*Otherwise,adjust third coordinate*)Q2=P[[3]];
+Q0=If[dxP2===0,P[[1]]+1,P[[1]]-dyP2/dxP2];
+Q1=P[[2]]+1]];
+Q={Q0,Q1,Q2};
+(*Build transformation matrix M sending Q->(1:0:0) and P2->(0:1:0);
+we fix the third image to (0:0:1).*)M=Transpose[{Q,P2,{1,0,0}}];
+If[Det[M]==0,M=Transpose[{Q,P2,{0,1,0}}];
+If[Det[M]==0,M=Transpose[{Q,P2,{0,0,1}}]]];
+(*Apply the transformation to F*)FTrans=Expand[F/. Thread[vars->M . {x,y,z}]];
+(*Scale and dehomogenize:scale so that the coefficient of x^3 is 1*)a=Coefficient[FTrans,x,3];
+FTrans=FTrans/a;
+(*Assume the monomial y^2 z has nonzero coefficient;set z=-1/b*)b=Coefficient[FTrans,y^2 z,1];
+FTrans=FTrans/. z->-1/b;
+E=FTrans;(*E is now a polynomial in x and y,a model for the elliptic curve*)If[equiv,transX=M[[1,1]]*x+M[[1,2]]*y+M[[1,3]]*(-1/b);
+transY=M[[2,1]]*x+M[[2,2]]*y+M[[2,3]]*(-1/b);
+transZ=M[[3,1]]*x+M[[3,2]]*y+M[[3,3]]*(-1/b);
+Print["Transformation:"];
+Print[ToString[x]," -> ",transX];
+Print[ToString[y]," -> ",transY];
+Print[ToString[z]," -> ",transZ];
+Print["Then multiply the equation with ",1/a];
+invM=Inverse[M];
+transX=invM[[1,1]]*x+invM[[1,2]]*y+invM[[1,3]]*z;
+transY=invM[[2,1]]*x+invM[[2,2]]*y+invM[[2,3]]*z;
+transZ=invM[[3,1]]*x+invM[[3,2]]*y+invM[[3,3]]*z;
+Print["Inverse transformation:"];
+Print["Homogenize the curve with respect to ",ToString[z]," then map"];
+Print[ToString[x]," -> ",transX];
+Print[ToString[y]," -> ",transY];
+Print[ToString[z]," -> ",-b*transZ];
+Print["Then multiply the equation with ",a];];
+
+Return[E],
+(*NON-FLEX CASE:Assume P,P2,and P3 are all distinct.*)Module[{M2},M2=Transpose[{P,P2,P3}];
+FTrans=Expand[F/. Thread[vars->M2 . {x,y,z}]];
+(*Apply substitution:x->x^2,y->y*z,z->x*z;then divide by x^2*z*)FTrans=Expand[FTrans/. {x->x^2,y->y*z,z->x*z}]/(x^2*z);
+a=Coefficient[FTrans,x,3];
+FTrans=FTrans/a;
+b=Coefficient[FTrans,y^2 z,1];
+FTrans=FTrans/. z->-1/b;
+E=FTrans;
+If[equiv,transX=(-b)*(M2[[1,1]]*x^2+M2[[1,2]]*y*(-1/b)+M2[[1,3]]*x*(-1/b));
+transY=(-b)*(M2[[2,1]]*x^2+M2[[2,2]]*y*(-1/b)+M2[[2,3]]*x*(-1/b));
+transZ=(-b)*(M2[[3,1]]*x^2+M2[[3,2]]*y*(-1/b)+M2[[3,3]]*x*(-1/b));
+Print["Transformation:"];
+Print[ToString[x]," -> ",transX];
+Print[ToString[y]," -> ",transY];
+Print[ToString[z]," -> ",transZ];
+Print["Then multiply the equation with ",1/(a*b^2*x^2)];
+invM=Inverse[M2];
+transX=invM[[1,1]]*x+invM[[1,2]]*y+invM[[1,3]]*z;
+transY=invM[[2,1]]*x+invM[[2,2]]*y+invM[[2,3]]*z;
+transZ=invM[[3,1]]*x+invM[[3,2]]*y+invM[[3,3]]*z;
+Print["Inverse transformation:"];
+Print["Homogenize the curve with respect to ",ToString[z],", then map"];
+Print[ToString[x]," -> ",transX*transZ];
+Print[ToString[y]," -> ",transX*transY];
+Print[ToString[z]," -> ",-b*transZ^2];
+Print["Then multiply the equation with ",a/(transX*transZ^2)];];
+Return[E]]]];
+
+(*Long Weierstrass to short Weierstrass transformation*)
+ClearAll[ShortWierstrass];
+ShortWierstrass[E_]:=Module[{vars,x,y,CC1,CC2,CC3,v,u,w},vars=Variables[E];{x,y}=vars;
+[CC1:=Simplify[E/. Thread[y->(v+Coefficient[Coefficient[E,x],y]*x+Coefficient[Coefficient[E,y],x,0])/2]]];
+CC2:=Simplify[CC1/. Thread[x->(w-3*Coefficient[4*CC1,x,2])/36]];
+CC3:=Simplify[CC2/. Thread[v-> 108u]];
+Return[Expand[CC3]]]
+
+EndPackage[];
